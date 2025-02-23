@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanMap</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9ecef;
+        }
+        header {
+            background-color: #003366; /* Dark navy blue */
+            color: white;
+            padding: 10px 20px;
+            text-align: left;
+            border-bottom: 4px solid #002244; /* Darker blue line */
+        }
+        .plans-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 20px;
+        }
+        .plan {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 20px;
+            width: 180px;
+            text-align: center;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .plan:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .plan h2 {
+            font-size: 1.2em;
+            margin: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .plan-description {
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }
+        .close {
+            cursor: pointer;
+            font-size: 24px;
+            color: #aaa;
+            float: right;
+        }
+        .close:hover {
+            color: black;
+        }
+        .user-section {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+        }
+        .user-input, .user-feedback {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            width: 40%;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #003366; /* Dark navy blue */
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #002244; /* Even darker blue */
+        }
+        .reviews-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .survey {
+            margin-top: 20px;
+        }
+        .survey h3 {
+            margin-bottom: 10px;
+        }
+        .survey label {
+            display: block;
+            margin-top: 10px;
+        }
+        .survey input[type="number"], .survey select {
+            width: 100%;
+            margin-top: 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .average-results {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .rating-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rating {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .star {
+            cursor: pointer;
+            font-size: 20px;
+            color: #ccc;
+            transition: color 0.2s;
+        }
+        .star:hover,
+        .star.selected {
+            color: #ffcc00;
+        }
+        .comment-section {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PlanMap</h1>
+    </header>
+    <main>
+        <div class="plans-container">
+            <div class="plan" onclick="openPopup('Breathtaking Views')">
+                <h2>🌄 Breathtaking Views</h2>
+                <p class="plan-description">Explore stunning landscapes and panoramic vistas.</p>
+            </div>
+            <div class="plan" onclick="openPopup('Crazy Plans')">
+                <h2>🎢 Crazy Plans</h2>
+                <p class="plan-description">Adventure awaits with thrilling activities.</p>
+            </div>
+            <div class="plan" onclick="openPopup('Hidden Beauties')">
+                <h2>🏝 Hidden Beauties</h2>
+                <p class="plan-description">Discover secluded spots and secret gems.</p>
+            </div>
+            <div class="plan" onclick="openPopup('Night Life')">
+                <h2>🌃 Night Life</h2>
+                <p class="plan-description">Experience vibrant nightlife and entertainment.</p>
+            </div>
+            <div class="plan" onclick="openPopup('Relaxed Plans')">
+                <h2>🌳 Relaxed Plans</h2>
+                <p class="plan-description">Enjoy peaceful moments in serene environments.</p>
+            </div>
+        </div>
+
+        <div id="pricePopup" class="popup">
+            <div class="popup-content">
+                <span class="close" onclick="closePopup()">&times;</span>
+                <h2 id="planTitle">Select Your Plan</h2>
+                <p id="planDescription"></p>
+                <h3>Select Your Price Range</h3>
+                <input type="range" id="priceRange" min="0" max="100" step="10" oninput="updatePrice()">
+                <p id="priceValue">$0 - $100</p>
+                <button onclick="searchPlaces()">Search on Google Maps</button>
+            </div>
+        </div>
+    </main>
+
+    <section class="user-section">
+        <div class="user-input">
+            <h3>Add Recommended Places</h3>
+            <select id="planType" class="plan-selector" onchange="updatePlanBio()">
+                <option value="Breathtaking Views">Breathtaking Views</option>
+                <option value="Crazy Plans">Crazy Plans</option>
+                <option value="Hidden Beauties">Hidden Beauties</option>
+                <option value="Night Life">Night Life</option>
+                <option value="Relaxed Plans">Relaxed Plans</option>
+            </select>
+            <button onclick="openGoogleMaps()">Open Google Maps</button>
+            <p id="planInfo"></p> <!-- Add this line -->
+        </div>
+        <div class="user-feedback">
+            <h3>Site Reviews</h3>
+            <div class="survey">
+                <h3>Rate Your Experience</h3>
+                
+                <!-- New Plan Type Selector for Reviews -->
+                <label>Select Plan Type:</label>
+                <select id="reviewPlanType">
+                    <option value="Breathtaking Views">Breathtaking Views</option>
+                    <option value="Crazy Plans">Crazy Plans</option>
+                    <option value="Hidden Beauties">Hidden Beauties</option>
+                    <option value="Night Life">Night Life</option>
+                    <option value="Relaxed Plans">Relaxed Plans</option>
+                </select>
+                
+                <div class="rating-container">
+                    <div class="rating">
+                        <span class="star" onclick="selectRating(1)">★</span>
+                        <span class="star" onclick="selectRating(2)">★</span>
+                        <span class="star" onclick="selectRating(3)">★</span>
+                        <span class="star" onclick="selectRating(4)">★</span>
+                        <span class="star" onclick="selectRating(5)">★</span>
+                    </div>
+                </div>
+                <label>Would you recommend it?</label>
+                <select id="recommendation" required>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+                <div class="comment-section">
+                    <label>Additional Comments or Suggestions:</label>
+                    <textarea id="userFeedback" placeholder="We would love to know your opinion!"></textarea>
+                </div>
+                <button onclick="saveReview()">Submit Review</button>
+            </div>
+            <div class="reviews-list" id="reviewsList"></div>
+            <div class="average-results" id="averageResults"></div>
+        </div>
+    </section>
+
+    <script>
+        const places = JSON.parse(localStorage.getItem('places')) || {
+            "Breathtaking Views": [],
+            "Crazy Plans": [],
+            "Hidden Beauties": [],
+            "Night Life": [],
+            "Relaxed Plans": []
+        };
+        const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+        const surveyResults = JSON.parse(localStorage.getItem('surveyResults')) || [];
+
+        window.onload = function() {
+            renderReviews();
+            updateAverageResults();
+        };
+
+        function openPopup(plan) {
+            document.getElementById('pricePopup').style.display = 'flex';
+            document.getElementById('priceValue').innerText = $0 - $100;
+            window.currentPlan = plan;
+
+            const planTitles = {
+                "Breathtaking Views": "Breathtaking Views",
+                "Crazy Plans": "Crazy Plans",
+                "Hidden Beauties": "Hidden Beauties",
+                "Night Life": "Night Life",
+                "Relaxed Plans": "Relaxed Plans"
+            };
+
+            const planDescriptions = {
+                "Breathtaking Views": "We all love a peaceful sunset—sitting on the beach, watching the sun sink into the sea, seeing the last rays of light reflected on glass buildings, or taking a deep breath as the sun disappears behind the mountains. If you think the sunset you're witnessing is too beautiful for anyone to miss, attach a photo and the location here and share your view with other users.",
+                "Crazy Plans": "A little adrenaline and a wild plan hidden in the city never hurt anyone. These plans include activities like bungee jumping, rafting, or extreme sports available in your city. But you can also share a crazy experience you've had alone or with friends.",
+                "Hidden Beauties": "We've all been to a place that very few people know about but is truly unique. If you think your spot is worth discovering, whether for its breathtaking views or a secret activity that can be done there, share it here.",
+                "Night Life": "So far, all the suggested plans happen in the afternoon, but what about the night owls? In this section, share your favorite nighttime plans—not necessarily partying (though you can include the best clubs), but think beyond that. A perfect spot for stargazing or even a place to spend the night outdoors could be great options.",
+                "Relaxed Plans": "After all these experiences, it's also nice to take a break. This last section is for relaxation plans, whether it’s a spa, a rural getaway, or any idea that helps you unwind for an afternoon or even several days."
+            };
+
+            document.getElementById('planTitle').innerText = planTitles[plan];
+            document.getElementById('planDescription').innerText = planDescriptions[plan];
+        }
+
+        function closePopup() {
+            document.getElementById('pricePopup').style.display = 'none';
+        }
+
+        function updatePrice() {
+            const range = document.getElementById('priceRange');
+            const maxPrice = range.value;
+            document.getElementById('priceValue').innerText = `$0 - $${maxPrice}`;
+        }
+
+        function searchPlaces() {
+            const maxPrice = document.getElementById('priceRange').value;
+            const searchQueries = {
+                "Breathtaking Views": "miradores",
+                "Crazy Plans": "lugares de aventuras",
+                "Hidden Beauties": "calas",
+                "Night Life": "discotecas y puffs",
+                "Relaxed Plans": "spas"
+            };
+            const searchQuery = searchQueries[window.currentPlan];
+            const url = `https://www.google.com/maps/search/${searchQuery}+in+my+city+under+$${maxPrice}`;
+            window.open(url, '_blank');
+            closePopup();
+        }
+
+        function updatePlanBio() {
+            const planType = document.getElementById('planType').value;
+            document.getElementById('planBio').innerText = `Plan selected: ${planType}`;
+        }
+
+        function openGoogleMaps() {
+            const selectedPlan = document.getElementById('planType').value;
+            const planDescription = `You selected the plan: ${selectedPlan}`;
+            alert(planDescription);
+
+            // Show the selected plan type in the planInfo paragraph
+            document.getElementById('planInfo').innerText = `You selected: ${selectedPlan}`;
+            const searchQuery = encodeURIComponent(selectedPlan);
+            const url = `https://www.google.com/maps/search/${searchQuery}`;
+            const button = document.createElement('a');
+            button.href = url;
+            button.target = '_blank';
+            button.innerText = 'Find on Google Maps';
+            button.style.display = 'block';
+            button.style.marginTop = '10px';
+            button.style.color = '#003366';
+            button.style.textDecoration = 'underline';
+            document.getElementById('planInfo').appendChild(button);
+        }
+
+        function selectRating(rating) {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('selected', index < rating);
+            });
+            document.getElementById('selectedRating').value = rating; // Store the rating value
+        }
+
+        function saveReview() {
+            const rating = document.querySelectorAll('.star.selected').length;
+            const planType = document.getElementById('reviewPlanType').value; // Get selected plan type
+            const recommendation = document.getElementById('recommendation').value;
+            const comments = document.getElementById('userFeedback').value;
+
+            if (rating === 0) {
+                alert('Please select a rating!');
+                return;
+            }
+
+            const review = { rating, planType, recommendation, comments };
+            reviews.push(review);
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+            renderReviews();
+            updateAverageResults();
+            document.getElementById('userFeedback').value = ''; // Clear feedback
+            selectRating(0); // Reset the stars
+        }
+
+        function renderReviews() {
+            const reviewsList = document.getElementById('reviewsList');
+            reviewsList.innerHTML = '';
+            reviews.forEach(review => {
+                const reviewElement = document.createElement('div');
+                reviewElement.innerText = `Plan: ${review.planType}, Rating: ${review.rating} Stars, Recommended: ${review.recommendation === '1' ? 'Yes' : 'No'}, Comments: ${review.comments}`;
+                reviewsList.appendChild(reviewElement);
+            });
+        }
+
+        function updateAverageResults() {
+            const averageResults = document.getElementById('averageResults');
+            const totalReviews = reviews.length;
+            if (totalReviews === 0) {
+                averageResults.innerText = 'No reviews yet.';
+                return;
+            }
+
+            const average = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+            averageResults.innerText = `Average Rating: ${average.toFixed(1)} Stars from ${totalReviews} Reviews`;
+        }
+    </script>
+</body>
+</html>
